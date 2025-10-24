@@ -51,8 +51,6 @@ jobs:
       - name: Move to package folder
         run: cd build/kotlin-kvision-spa-framework-resources
 
-      - run: npm ci
-
       - name: Publish to NPM (skip if version exists)
         run: |
           set -e
