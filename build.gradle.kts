@@ -6,8 +6,10 @@ plugins {
     id("io.kvision") version kvisionVersion
 }
 
-version = "1.0.0-SNAPSHOT"
+version = "1.0.1"
 group = "com.bittokazi.kvision.spa.framework"
+
+val resourcesVersion = "1.0.1"
 
 repositories {
     mavenCentral()
@@ -82,7 +84,7 @@ tasks.register("npmPackage") {
         packageJsonFile.writeText("""
             {
               "name": "kotlin-kvision-spa-framework-resources",
-              "version": "1.0.0",
+              "version": "${resourcesVersion}",
               "main": "index.js",
               "files": [
                 "index.js",
