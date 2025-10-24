@@ -6,6 +6,7 @@ plugins {
     id("io.kvision") version kvisionVersion
 
     // for publishing
+    id("signing")
     id("maven-publish")
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
 }
@@ -101,18 +102,9 @@ tasks.register("npmPackage") {
     }
 }
 
-val jsArtifactJar = tasks.register<Jar>("jsArtifactJar") {
-    dependsOn("jsBrowserDistribution")
-    archiveClassifier.set("") // no classifier -> main artifact
-    from(layout.buildDirectory.dir("distributions"))
-    description = "Packages compiled JS output into a JAR for Maven Central."
-}
-
 publishing {
     publications {
-        create<MavenPublication>("mavenJs") {
-            artifact(jsArtifactJar)
-
+        named<MavenPublication>("js") {
             pom {
                 name.set("Kvision Single Page Application Framework")
                 description.set("A Kotlin/JS SPA framework built with KVision")
@@ -129,7 +121,7 @@ publishing {
                     developer {
                         id.set("bittokazi")
                         name.set("Bittokazi")
-                        email.set("you@example.com")
+                        email.set("bitto.kazi@gmail.com")
                     }
                 }
 
@@ -145,9 +137,6 @@ publishing {
 
 nexusPublishing {
     repositories {
-        sonatype()
-    }
-    repositories {
         sonatype {
             nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
             snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
@@ -155,5 +144,13 @@ nexusPublishing {
             password.set(System.getenv("CENTRAL_PUBLISHER_PASSWORD"))
         }
     }
+}
+
+val signingKey: String? = System.getenv("SIGNING_KEY")
+val signingPassword: String? = System.getenv("SIGNING_PASSWORD")
+
+signing {
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign(publishing.publications["js"])
 }
 
