@@ -4,10 +4,14 @@ plugins {
     kotlin("multiplatform") version kotlinVersion
     val kvisionVersion: String by System.getProperties()
     id("io.kvision") version kvisionVersion
+
+    // for publishing
+    id("maven-publish")
+    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
 }
 
 version = "1.0.1"
-group = "com.bittokazi.kvision.spa.framework"
+group = "com.bittokazi.sonartype"
 
 val resourcesVersion = "1.0.1"
 
@@ -96,3 +100,56 @@ tasks.register("npmPackage") {
         println("Local NPM package prepared in: ${npmPackageDir.get().asFile.absolutePath}")
     }
 }
+
+val jsArtifactJar = tasks.register<Jar>("jsArtifactJar") {
+    dependsOn("jsBrowserDistribution")
+    archiveClassifier.set("") // no classifier -> main artifact
+    from(layout.buildDirectory.dir("distributions"))
+    description = "Packages compiled JS output into a JAR for Maven Central."
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJs") {
+            artifact(jsArtifactJar)
+
+            pom {
+                name.set("Kvision Single Page Application Framework")
+                description.set("A Kotlin/JS SPA framework built with KVision")
+                url.set("https://github.com/bittokazi/kotlin-kvision-spa-framework")
+
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("bittokazi")
+                        name.set("Bittokazi")
+                        email.set("you@example.com")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:git://github.com/bittokazi/kotlin-kvision-spa-framework.git")
+                    developerConnection.set("scm:git:ssh://github.com/bittokazi/kotlin-kvision-spa-framework.git")
+                    url.set("https://github.com/bittokazi/kotlin-kvision-spa-framework")
+                }
+            }
+        }
+    }
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            // Use your Central Portal credentials (not OSSRH)
+            username.set(System.getenv("CENTRAL_PUBLISHER_USERNAME"))
+            password.set(System.getenv("CENTRAL_PUBLISHER_PASSWORD"))
+        }
+    }
+}
+
