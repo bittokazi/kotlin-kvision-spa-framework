@@ -1,0 +1,52 @@
+name: 'Release: NPM Package'
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+
+      - name: Build NPM Resource Module
+        run: gradle npmPackage
+
+  publish-npm:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+
+      - name: Move to package folder
+        run: cd build/kotlin-kvision-spa-framework-resources
+
+      - run: npm ci
+
+      - name: Publish to NPM (skip if version exists)
+        run: |
+          set -e
+          VERSION=$(node -p "require('./package.json').version")
+          NAME=$(node -p "require('./package.json').name")
+          
+          if npm view "$NAME@$VERSION" > /dev/null 2>&1; then
+            echo "Version $VERSION already exists on NPM. Skipping publish."
+          else
+            echo "Publishing $NAME@$VERSION to NPM..."
+            npm publish
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
