@@ -147,10 +147,9 @@ nexusPublishing {
 }
 
 val signingKey: String? = System.getenv("SIGNING_KEY")
-val signingPassword: String? = System.getenv("SIGNING_PASSWORD")
 
 signing {
-    useInMemoryPgpKeys(signingKey, signingPassword)
+    useInMemoryPgpKeys(signingKey, "")
     sign(publishing.publications["js"])
 }
 
