@@ -21,15 +21,32 @@ jobs:
       - name: Build NPM Resource Module
         run: gradle npmPackage
 
+      - name: Upload built package
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-resources
+          path: build/kotlin-kvision-spa-framework-resources
+          retention-days: 1
+
   publish-npm:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Download built artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: npm-resources
+          path: build/kotlin-kvision-spa-framework-resources
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
+
+      - name: Verify package contents
+        run: ls -R build/kotlin-kvision-spa-framework-resources
 
       - name: Move to package folder
         run: cd build/kotlin-kvision-spa-framework-resources
