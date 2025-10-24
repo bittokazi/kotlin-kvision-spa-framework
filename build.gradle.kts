@@ -145,8 +145,12 @@ publishing {
 
 nexusPublishing {
     repositories {
+        sonatype()
+    }
+    repositories {
         sonatype {
-            // Use your Central Portal credentials (not OSSRH)
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
             username.set(System.getenv("CENTRAL_PUBLISHER_USERNAME"))
             password.set(System.getenv("CENTRAL_PUBLISHER_PASSWORD"))
         }
