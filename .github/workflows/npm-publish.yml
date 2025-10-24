@@ -48,14 +48,9 @@ jobs:
       - name: Verify package contents
         run: ls -R build/kotlin-kvision-spa-framework-resources
 
-      - name: Move to package folder
-        run: cd build/kotlin-kvision-spa-framework-resources
-
-      - name: Re-verify content
-        run: ls
-
       - name: Publish to NPM (skip if version exists)
         run: |
+          cd build/kotlin-kvision-spa-framework-resources
           set -e
           VERSION=$(node -p "require('./package.json').version")
           NAME=$(node -p "require('./package.json').name")
