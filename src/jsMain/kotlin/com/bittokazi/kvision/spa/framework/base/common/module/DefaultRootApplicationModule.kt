@@ -80,8 +80,8 @@ class DefaultRootApplicationModule(
                                             SpaAppEngine.spaAuthService.authObservableValue.setState(it)
                                             window.setTimeout({
                                                 SpaAppEngine.globalSpinnerObservable.setState(false)
-                                                window["feather"].replace()
-                                                window["sidebarInit"]()
+                                                window["feather"]?.replace()
+                                                if(window["sidebarInit"]!=null) window["sidebarInit"]()
                                             }, 1000)
                                             SpaAppEngine.authObserver.setState(true)
                                         }.catch { throwable ->
@@ -107,7 +107,7 @@ class DefaultRootApplicationModule(
                 }
                 SpaAppEngine.dashboardPageChangeObserver.setState("urlChanged")
                 window.setTimeout({
-                    window["feather"].replace()
+                    window["feather"]?.replace()
                 }, 100)
             }
 
