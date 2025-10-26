@@ -11,10 +11,10 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
 }
 
-version = "1.0.2"
+version = "1.0.3"
 group = "com.bittokazi.sonartype"
 
-val resourcesVersion = "1.0.2"
+val resourcesVersion = "1.0.3"
 
 repositories {
     mavenCentral()
