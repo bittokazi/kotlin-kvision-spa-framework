@@ -4,6 +4,7 @@ import com.bittokazi.kvision.spa.framework.base.common.module.ApplicationModule
 import com.bittokazi.kvision.spa.framework.base.common.page.RouteNotFoundActionProvider
 import com.bittokazi.kvision.spa.framework.base.common.tenant.TenantInformationProvider
 import com.bittokazi.kvision.spa.framework.base.components.menu.MenuProvider
+import com.bittokazi.kvision.spa.framework.base.models.RefreshTokenRequestProvider
 import com.bittokazi.kvision.spa.framework.base.models.SpaTenantInfo
 import com.bittokazi.kvision.spa.framework.base.services.LogoutActionProvider
 import io.kvision.BootstrapIconsModule
@@ -24,6 +25,7 @@ data class ApplicationConfiguration(
     var authHolderType: AuthHolderType,
     var menuProvider: MenuProvider,
     var logoutActionProvider: LogoutActionProvider,
+    val refreshTokenRequestProvider: RefreshTokenRequestProvider,
     var moduleInitializer: List<ModuleInitializer> = listOf(
         DatetimeModule,
         RichTextModule,
