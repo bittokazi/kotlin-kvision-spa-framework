@@ -4,7 +4,6 @@ import com.bittokazi.kvision.spa.framework.App
 import com.bittokazi.kvision.spa.framework.base.services.SpaAuthService
 import com.bittokazi.kvision.spa.framework.base.services.FileService
 import com.bittokazi.kvision.spa.framework.base.services.RestService
-import com.bittokazi.kvision.spa.framework.base.utils.importDefaultResources
 import io.kvision.BootstrapIconsModule
 import io.kvision.CoreModule
 import io.kvision.DatetimeModule
@@ -27,8 +26,6 @@ object SpaApplication {
     var rootContainer: Container? = null
 
     fun init() {
-        importDefaultResources()
-
         SpaAppEngine.defaultTenantHolder = AuthInformationHolder()
 
         SpaAppEngine.restService = RestService()
@@ -50,17 +47,7 @@ object SpaApplication {
         startApplication(
             ::App,
             js("import.meta.webpackHot").unsafeCast<Hot?>(),
-            //BootstrapModule,
-            //BootstrapCssModule,
-            DatetimeModule,
-            RichTextModule,
-            //BootstrapUploadModule,
-            ImaskModule,
-            ToastifyModule,
-            FontAwesomeModule,
-            BootstrapIconsModule,
-            MapsModule,
-            CoreModule
+            moduleInitializer = applicationConfiguration.moduleInitializer.toTypedArray()
         )
     }
 }
