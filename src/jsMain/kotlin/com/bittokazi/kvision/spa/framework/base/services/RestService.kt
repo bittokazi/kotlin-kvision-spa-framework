@@ -4,7 +4,6 @@ import com.bittokazi.kvision.spa.framework.base.common.SpaAppEngine
 import com.bittokazi.kvision.spa.framework.base.common.AuthData
 import com.bittokazi.kvision.spa.framework.base.common.AuthHolderType
 import com.bittokazi.kvision.spa.framework.base.models.LoginResponse
-import com.bittokazi.kvision.spa.framework.base.models.RefreshTokenRequest
 import com.bittokazi.kvision.spa.framework.base.common.SpaAppEngine.defaultAuthHolder
 import com.bittokazi.kvision.spa.framework.base.common.SpaApplication
 import com.bittokazi.kvision.spa.framework.base.utils.sweetAlert
@@ -16,13 +15,14 @@ import io.kvision.state.ObservableValue
 import kotlinx.browser.window
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToDynamic
 import kotlin.js.Promise
 
 class RestService {
 
-    val BASE_URL = window.location.origin
-    val REFRESH_TOKEN_ENDPOINT = "${BASE_URL}/oauth2/refresh/token"
+    var BASE_URL = window.location.origin
+    var REFRESH_TOKEN_ENDPOINT = "${BASE_URL}/oauth2/refresh/token"
 
     var refreshTokenObservable: ObservableValue<Boolean?> = ObservableValue(null)
     var refreshingToken = false
@@ -141,11 +141,12 @@ class RestService {
                 refreshingToken = true
                 refreshTokenObservable = ObservableValue(null)
 
-                val refreshTokenRequest = RefreshTokenRequest(
-                    refresh_token = defaultAuthHolder.getAuth()?.refreshToken ?: run { return@run "" }
-                )
+                val refreshTokenRequest = SpaApplication
+                    .applicationConfiguration
+                    .refreshTokenRequestProvider
+                    .getRequest()
 
-                RestClient().post<LoginResponse, RefreshTokenRequest>(
+                RestClient().post<LoginResponse, JsonObject>(
                     url = SpaAppEngine.restService.REFRESH_TOKEN_ENDPOINT,
                     data = refreshTokenRequest
                 ).then {
