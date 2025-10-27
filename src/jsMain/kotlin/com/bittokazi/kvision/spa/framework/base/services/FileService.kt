@@ -1,7 +1,6 @@
 package com.bittokazi.kvision.spa.framework.base.services
 
 import com.bittokazi.kvision.spa.framework.base.common.SpaAppEngine
-import com.bittokazi.kvision.spa.framework.base.models.FileResponse
 import com.bittokazi.kvision.spa.framework.base.models.SpaResult
 import io.kvision.form.upload.UploadInput
 import io.kvision.jquery.jQuery
