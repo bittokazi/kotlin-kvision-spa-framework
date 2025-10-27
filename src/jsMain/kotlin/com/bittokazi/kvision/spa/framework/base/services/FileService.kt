@@ -6,6 +6,7 @@ import com.bittokazi.kvision.spa.framework.base.models.SpaResult
 import io.kvision.form.upload.UploadInput
 import io.kvision.jquery.jQuery
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import org.w3c.files.Blob
 import org.w3c.files.BlobPropertyBag
 import org.w3c.xhr.FormData
@@ -18,7 +19,7 @@ class FileService {
         uploadInput: UploadInput,
         retry: Boolean = true,
         url: String = "",
-        fn: (SpaResult<FileResponse, FileServiceError>) -> Unit
+        fn: (SpaResult<JsonObject, FileServiceError>) -> Unit
     ) {
         val formData = FormData()
 
@@ -62,7 +63,7 @@ class FileService {
                 // Handle the response
                 if (result != null) {
                     val jsonString = JSON.stringify(result)
-                    val fileResponse = Json.decodeFromString<FileResponse>(jsonString)
+                    val fileResponse = Json.decodeFromString<JsonObject>(jsonString)
                     fn(SpaResult.Success(fileResponse))
                 }
             },
