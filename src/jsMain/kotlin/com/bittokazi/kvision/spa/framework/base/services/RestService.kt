@@ -152,10 +152,10 @@ class RestService {
                 ).then {
                     when (SpaApplication.applicationConfiguration.authHolderType) {
                         AuthHolderType.LOCAL_STORAGE -> defaultAuthHolder.setAuth(
-                            AuthData(
-                                it.access_token,
-                                it.refresh_token
-                            )
+                            SpaApplication
+                                .applicationConfiguration
+                                .refreshTokenRequestProvider
+                                .getAuthDataFromRefreshTokenResponse()
                         )
                         AuthHolderType.COOKIE -> {}
                     }
