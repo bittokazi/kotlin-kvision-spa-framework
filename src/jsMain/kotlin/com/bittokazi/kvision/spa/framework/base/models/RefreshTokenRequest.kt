@@ -5,5 +5,5 @@ import kotlinx.serialization.json.JsonObject
 
 interface RefreshTokenRequestProvider {
     fun getRequest(): JsonObject
-    fun getAuthDataFromRefreshTokenResponse(): AuthData
+    fun getAuthDataFromRefreshTokenResponse(response: JsonObject): AuthData
 }
