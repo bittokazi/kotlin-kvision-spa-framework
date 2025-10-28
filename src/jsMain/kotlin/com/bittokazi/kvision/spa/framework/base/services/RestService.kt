@@ -1,9 +1,7 @@
 package com.bittokazi.kvision.spa.framework.base.services
 
 import com.bittokazi.kvision.spa.framework.base.common.SpaAppEngine
-import com.bittokazi.kvision.spa.framework.base.common.AuthData
 import com.bittokazi.kvision.spa.framework.base.common.AuthHolderType
-import com.bittokazi.kvision.spa.framework.base.models.LoginResponse
 import com.bittokazi.kvision.spa.framework.base.common.SpaAppEngine.defaultAuthHolder
 import com.bittokazi.kvision.spa.framework.base.common.SpaApplication
 import com.bittokazi.kvision.spa.framework.base.utils.sweetAlert
@@ -146,7 +144,7 @@ class RestService {
                     .refreshTokenRequestProvider
                     .getRequest()
 
-                RestClient().post<LoginResponse, JsonObject>(
+                RestClient().post<JsonObject, JsonObject>(
                     url = SpaAppEngine.restService.REFRESH_TOKEN_ENDPOINT,
                     data = refreshTokenRequest
                 ).then {
@@ -155,7 +153,7 @@ class RestService {
                             SpaApplication
                                 .applicationConfiguration
                                 .refreshTokenRequestProvider
-                                .getAuthDataFromRefreshTokenResponse()
+                                .getAuthDataFromRefreshTokenResponse(it)
                         )
                         AuthHolderType.COOKIE -> {}
                     }
