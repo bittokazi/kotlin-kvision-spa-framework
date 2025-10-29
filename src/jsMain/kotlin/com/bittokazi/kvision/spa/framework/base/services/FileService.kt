@@ -84,6 +84,7 @@ class FileService {
                                     fileName = fileName,
                                     uploadInput = uploadInput,
                                     fn = fn,
+                                    url = url,
                                     retry = false
                                 )
                             } else {
@@ -97,10 +98,10 @@ class FileService {
                     val errorMessage = if (jqXHR.responseJSON != null) {
                         JSON.stringify(jqXHR.responseJSON)
                     } else {
-                        errorThrown
+                        ""
                     }
 
-                    fn(SpaResult.Failure(FileServiceError.SERVER_ERROR))
+                    fn(SpaResult.Failure(FileServiceError.SERVER_ERROR, errorMessage))
                 }
             }
         )
