@@ -15,6 +15,7 @@ This library provides a clean, modular foundation for developing reactive SPAs i
 - Integrated REST service and reactive state management
 - A built-in dashboard template via `DefaultSecuredModule`
 - Support for modular routing via `DefaultRootApplicationModule`
+- Per-feature secured modules via `DefaultSecuredPageModule`
 
 It consists of:
 - A **Kotlin/JS dependency**
@@ -83,136 +84,71 @@ kotlin {
 Example `main()` setup using the framework:
 
 ```kotlin
-package cms.tenant.multi.frontend.project
+SpaApplication.init()
 
-import cms.tenant.multi.frontend.project.app.private.dashboard.tenant.TenantService
-import cms.tenant.multi.frontend.project.app.private.dashboard.user.UserService
-import cms.tenant.multi.frontend.project.app.rootModule
-import cms.tenant.multi.frontend.project.base.common.AppEngine
-import cms.tenant.multi.frontend.project.base.services.AuthService
-import com.bittokazi.kvision.spa.framework.base.common.ApplicationConfiguration
-import com.bittokazi.kvision.spa.framework.base.common.AuthHolderType
-import com.bittokazi.kvision.spa.framework.base.common.SpaAppEngine
-import com.bittokazi.kvision.spa.framework.base.common.SpaApplication
-import com.bittokazi.kvision.spa.framework.base.models.SpaTenantInfo
-import com.bittokazi.kvision.spa.framework.base.utils.importDefaultResources
+SpaAppEngine.restService.REFRESH_TOKEN_ENDPOINT =
+    "${SpaAppEngine.restService.BASE_URL}/login/refresh/token"
 
-fun main() {
+AppEngine.restService = SpaAppEngine.restService
+AppEngine.authService = AuthService()
+AppEngine.tenantService = TenantService()
+AppEngine.userService = UserService()
 
-    importDefaultResources()
-    SpaApplication.init()
+SpaApplication.applicationConfiguration = ApplicationConfiguration(
+    spaTenantInfo = SpaTenantInfo(
+        cpanel = false,
+        enabledConfigPanel = false,
+        name = "SpaApplication"
+    ),
+    isTenantEnabled = true,
+    rootApplicationModule = rootModule(),
+    tenantInformationProvider = AppEngine.tenantService,
+    authHolderType = AuthHolderType.LOCAL_STORAGE,
+    menuProvider = AppEngine.authService,
+    refreshTokenRequestProvider = AppEngine.authService,
+    logoutActionProvider = AppEngine.authService
+)
 
-    // Configure API endpoints
-    SpaAppEngine.restService.REFRESH_TOKEN_ENDPOINT =
-        "${SpaAppEngine.restService.BASE_URL}/login/refresh/token"
-
-    // Setup your application services
-    AppEngine.restService = SpaAppEngine.restService
-    AppEngine.authService = AuthService()
-    AppEngine.tenantService = TenantService()
-    AppEngine.userService = UserService()
-
-    // Configure application behavior
-    SpaApplication.applicationConfiguration = ApplicationConfiguration(
-        spaTenantInfo = SpaTenantInfo(
-            cpanel = false,
-            enabledConfigPanel = false,
-            name = "SpaApplication"
-        ),
-        isTenantEnabled = true,
-        rootApplicationModule = rootModule(),
-        tenantInformationProvider = AppEngine.tenantService,
-        authHolderType = AuthHolderType.LOCAL_STORAGE,
-        menuProvider = AppEngine.authService,
-        refreshTokenRequestProvider = AppEngine.authService,
-        logoutActionProvider = AppEngine.authService
-    )
-
-    // Start the SPA
-    SpaApplication.start()
-}
+SpaApplication.start()
 ```
 
 ---
 
 ## 🧩 Using `DefaultRootApplicationModule`
 
-The `DefaultRootApplicationModule` is a prebuilt module that defines the public routes (login, signup, etc.) and the entry point to secured modules (like dashboards).
-
-Example usage:
+Defines the public routes (login, signup, home) and links to the secured dashboard module.
 
 ```kotlin
-package cms.tenant.multi.frontend.project.app
-
-import cms.tenant.multi.frontend.project.app.private.dashboardModule
-import cms.tenant.multi.frontend.project.app.public.HomePage
-import cms.tenant.multi.frontend.project.app.public.signin.LoginPage
-import cms.tenant.multi.frontend.project.app.public.signin.OauthLoginPage
-import cms.tenant.multi.frontend.project.app.public.signup.SignupPage
-import cms.tenant.multi.frontend.project.base.common.AppEngine
-import com.bittokazi.kvision.spa.framework.base.common.RouterConfiguration
-import com.bittokazi.kvision.spa.framework.base.common.module.ApplicationModule
-import com.bittokazi.kvision.spa.framework.base.common.module.DefaultRootApplicationModule
-
 fun rootModule(): ApplicationModule = DefaultRootApplicationModule(
-    loginPage = {
-        LoginPage()
-    },
+    loginPage = { LoginPage() },
     securedModule = dashboardModule(),
     authInformationProvider = AppEngine.authService,
     RouterConfiguration(
         route = "/app",
         title = "App Home",
-        view = {
-            HomePage()
-        }
+        view = { HomePage() }
     ),
     RouterConfiguration(
         route = "/app/signup",
         title = "Sign Up",
-        view = {
-            SignupPage()
-        }
+        view = { SignupPage() }
     )
 )
 ```
 
-### 🔍 Explanation
-
 | Parameter | Description |
 |------------|-------------|
-| **`loginPage`** | Defines the public login page component |
-| **`securedModule`** | Links to a secured area (see `DefaultSecuredModule` below) |
-| **`authInformationProvider`** | Provides authentication details and validation |
-| **`RouterConfiguration`** | Adds public routes to your SPA (e.g., `/app`, `/app/signup`) |
-
-This setup defines both your public routes and how users transition into the secured part of your application after authentication.
+| **`loginPage`** | Defines the login component |
+| **`securedModule`** | The authenticated dashboard area |
+| **`RouterConfiguration`** | Adds public routes like `/app` or `/app/signup` |
 
 ---
 
 ## 🔐 Using `DefaultSecuredModule`
 
-The `DefaultSecuredModule` provides a ready-made structure for your authenticated (dashboard) area.  
-It supports modular sections, routing, and a customizable layout via `DefaultLayoutLoader`.
-
-Example:
+Provides a complete dashboard shell for authenticated areas.
 
 ```kotlin
-package cms.tenant.multi.frontend.project.app.private
-
-import cms.tenant.multi.frontend.project.app.private.dashboard.category.categoryModule
-import cms.tenant.multi.frontend.project.app.private.dashboard.comment.commentModule
-import cms.tenant.multi.frontend.project.app.private.dashboard.page.pageModule
-import cms.tenant.multi.frontend.project.app.private.dashboard.post.postModule
-import cms.tenant.multi.frontend.project.app.private.dashboard.tenant.tenantModule
-import cms.tenant.multi.frontend.project.app.private.dashboard.user.userModule
-import cms.tenant.multi.frontend.project.base.common.AppEngine
-import com.bittokazi.kvision.spa.framework.base.common.RouterConfiguration
-import com.bittokazi.kvision.spa.framework.base.common.module.DefaultSecuredModule
-import com.bittokazi.kvision.spa.framework.base.layouts.DefaultLayoutLoader
-import com.bittokazi.kvision.spa.framework.base.layouts.dashboard.layout.ContentContainerType
-import io.kvision.html.*
-
 fun dashboardModule() = DefaultSecuredModule(
     layoutLoader = DefaultLayoutLoader(),
     modules = listOf(
@@ -228,9 +164,7 @@ fun dashboardModule() = DefaultSecuredModule(
         title = "Dashboard Home",
         view = {
             Div {
-                p {
-                    content = "Hello Dashboard!!!"
-                }
+                p { content = "Hello Dashboard!!!" }
             }
         },
         dashboardContainer = ContentContainerType.CARD
@@ -238,33 +172,113 @@ fun dashboardModule() = DefaultSecuredModule(
 )
 ```
 
-### 🔍 Explanation
+| Parameter | Description |
+|------------|-------------|
+| **`layoutLoader`** | Defines the dashboard layout |
+| **`modules`** | Registers feature modules (users, posts, etc.) |
+| **`RouterConfiguration`** | Defines a home or landing route |
+| **`ContentContainerType`** | Controls layout container style |
+
+---
+
+## 📘 Using `DefaultSecuredPageModule`
+
+The `DefaultSecuredPageModule` represents a single feature or section within the dashboard —  
+for example, the *Users* management section.
+
+```kotlin
+package cms.tenant.multi.frontend.project.app.private.dashboard.user
+
+import cms.tenant.multi.frontend.project.app.private.dashboard.user.pages.AddUserPage
+import cms.tenant.multi.frontend.project.app.private.dashboard.user.pages.UsersPage
+import com.bittokazi.kvision.spa.framework.base.common.RouterConfiguration
+import com.bittokazi.kvision.spa.framework.base.common.module.DefaultSecuredPageModule
+
+fun userModule() = DefaultSecuredPageModule(
+    RouterConfiguration(
+        route = "/app/dashboard/users",
+        title = "All Users",
+        view = { UsersPage() }
+    ),
+    RouterConfiguration(
+        route = "/app/dashboard/users/add",
+        title = "Add User",
+        view = { AddUserPage() }
+    )
+)
+```
 
 | Parameter | Description |
 |------------|-------------|
-| **`layoutLoader`** | Provides the main dashboard layout (sidebars, navbar, etc.) |
-| **`modules`** | Registers dashboard feature modules (e.g., posts, users, tenants) |
-| **`RouterConfiguration`** | Defines a default route or dashboard landing view |
-| **`ContentContainerType`** | Determines how content is displayed (`CARD`, `FULL_WIDTH`, etc.) |
+| **`RouterConfiguration`** | Defines one or more routes for this section |
+| **`view`** | Specifies which component (page) to render |
+| **`title`** | Used for navigation and breadcrumbs |
+| **`route`** | Defines the relative URL path within the dashboard |
 
-This allows you to build complex dashboards quickly by composing smaller modules.
+This allows you to modularize each section of your app — users, posts, settings, etc.
+
+---
+
+## 🧱 Example View Container
+
+Here’s an example of a simple **page container view** (`UsersPage`) used inside a module:
+
+```kotlin
+package cms.tenant.multi.frontend.project.app.private.dashboard.user.pages
+
+import cms.tenant.multi.frontend.project.base.common.AppEngine
+import com.bittokazi.kvision.spa.framework.base.common.SpaAppEngine
+import io.kvision.html.*
+import io.kvision.panel.SimplePanel
+
+class UsersPage : SimplePanel() {
+
+    init {
+        table(className = "table table-hover my-0") {
+            thead {
+                tr {
+                    th { content = "#" }
+                    th { content = "Email" }
+                    th { content = "Name" }
+                    th { content = "Role" }
+                    th { content = "Actions" }
+                }
+            }
+            tbody {
+                AppEngine.userService.getAll().then {
+                    it.data.forEachIndexed { index, user ->
+                        tr {
+                            td { content = "${index + 1}" }
+                            td { content = user.email }
+                            td { content = "${user.firstName} ${user.lastName}" }
+                            td { content = user.roles?.get(0)?.name }
+                            td { /* Action buttons go here */ }
+                        }
+                    }
+                }.then {
+                    SpaAppEngine.routing.updatePageLinks()
+                }
+            }
+        }
+    }
+}
+```
+
+This demonstrates:
+- Fetching data from a service (`AppEngine.userService`)
+- Rendering it dynamically in a table
+- Updating links using `SpaAppEngine.routing.updatePageLinks()`
 
 ---
 
 ## ⚙️ Commands
 
 ### ▶️ Run with Hot Reload
-
-Launch the app in development mode:
-
 ```bash
 ./gradlew run
 ```
 
 ### 🏗️ Build for Production
-
-Generate a production-ready build:
-
 ```bash
 ./gradlew build
 ```
@@ -280,8 +294,8 @@ See [LICENSE](LICENSE) for details.
 
 ## 💬 Support & Contributing
 
-- Open an issue or feature request on GitHub
-- Fork the repo and submit a pull request
+- Open issues or feature requests on GitHub
+- Fork the repo and submit pull requests
 - Use GitHub Discussions for community Q&A
 
 ---
