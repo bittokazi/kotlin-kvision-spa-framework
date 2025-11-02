@@ -71,10 +71,16 @@ kotlin {
         implementation("io.kvision:kvision-state-flow:$kvisionVersion")
 
         // ✅ Add the SPA framework dependencies
-        implementation("com.bittokazi.sonartype:kotlinKvisionSpaFramework-js:1.0.7")
-        implementation(npm("kotlin-kvision-spa-framework-resources", "1.0.7"))
+        implementation("com.bittokazi.sonartype:kotlinKvisionSpaFramework-js:1.0.8")
+        implementation(npm("kotlin-kvision-spa-framework-resources", "1.0.8"))
     }
 }
+```
+
+```kotlin
+// ✅ Add the SPA framework dependencies (use latest version)
+implementation("com.bittokazi.sonartype:kotlinKvisionSpaFramework-js:1.0.8")
+implementation(npm("kotlin-kvision-spa-framework-resources", "1.0.8"))
 ```
 
 ---
@@ -84,32 +90,38 @@ kotlin {
 Example `main()` setup using the framework:
 
 ```kotlin
-SpaApplication.init()
+fun main() {
 
-SpaAppEngine.restService.REFRESH_TOKEN_ENDPOINT =
-    "${SpaAppEngine.restService.BASE_URL}/login/refresh/token"
+    importDefaultResources()
+    SpaApplication.init()
+    SpaAppEngine.restService.REFRESH_TOKEN_ENDPOINT = "${SpaAppEngine.restService.BASE_URL}/login/refresh/token"
 
-AppEngine.restService = SpaAppEngine.restService
-AppEngine.authService = AuthService()
-AppEngine.tenantService = TenantService()
-AppEngine.userService = UserService()
+    AppEngine.restService = SpaAppEngine.restService
+    AppEngine.authService = AuthService()
+    AppEngine.tenantService = TenantService()
+    AppEngine.userService = UserService()
 
-SpaApplication.applicationConfiguration = ApplicationConfiguration(
-    spaTenantInfo = SpaTenantInfo(
-        cpanel = false,
-        enabledConfigPanel = false,
-        name = "SpaApplication"
-    ),
-    isTenantEnabled = true,
-    rootApplicationModule = rootModule(),
-    tenantInformationProvider = AppEngine.tenantService,
-    authHolderType = AuthHolderType.LOCAL_STORAGE,
-    menuProvider = AppEngine.authService,
-    refreshTokenRequestProvider = AppEngine.authService,
-    logoutActionProvider = AppEngine.authService
-)
+    SpaAppEngine.APP_BASE_ROUTE = "/app"
+    SpaAppEngine.APP_DASHBOARD_ROUTE = "/app/dashboard"
+    SpaAppEngine.APP_LOGIN_ROUTE = "/app/login"
 
-SpaApplication.start()
+    SpaApplication.applicationConfiguration = ApplicationConfiguration(
+        spaTenantInfo = SpaTenantInfo(
+            cpanel = false,
+            enabledConfigPanel = false,
+            name = "SpaApplication"
+        ),
+        isTenantEnabled = true,
+        rootApplicationModule = rootModule(),
+        tenantInformationProvider = AppEngine.tenantService,
+        authHolderType = AuthHolderType.LOCAL_STORAGE,
+        menuProvider = AppEngine.authService,
+        refreshTokenRequestProvider = AppEngine.authService,
+        logoutActionProvider = AppEngine.authService
+    )
+
+    SpaApplication.start()
+}
 ```
 
 ---
@@ -187,13 +199,6 @@ The `DefaultSecuredPageModule` represents a single feature or section within the
 for example, the *Users* management section.
 
 ```kotlin
-package cms.tenant.multi.frontend.project.app.private.dashboard.user
-
-import cms.tenant.multi.frontend.project.app.private.dashboard.user.pages.AddUserPage
-import cms.tenant.multi.frontend.project.app.private.dashboard.user.pages.UsersPage
-import com.bittokazi.kvision.spa.framework.base.common.RouterConfiguration
-import com.bittokazi.kvision.spa.framework.base.common.module.DefaultSecuredPageModule
-
 fun userModule() = DefaultSecuredPageModule(
     RouterConfiguration(
         route = "/app/dashboard/users",
@@ -224,13 +229,6 @@ This allows you to modularize each section of your app — users, posts, setting
 Here’s an example of a simple **page container view** (`UsersPage`) used inside a module:
 
 ```kotlin
-package cms.tenant.multi.frontend.project.app.private.dashboard.user.pages
-
-import cms.tenant.multi.frontend.project.base.common.AppEngine
-import com.bittokazi.kvision.spa.framework.base.common.SpaAppEngine
-import io.kvision.html.*
-import io.kvision.panel.SimplePanel
-
 class UsersPage : SimplePanel() {
 
     init {
