@@ -85,6 +85,10 @@ tasks.register<Copy>("prepareNpmPackage") {
 tasks.register("npmPackage") {
     dependsOn("prepareNpmPackage")
     doLast {
+        copy {
+            from("README.md") // adjust relative path
+            into(npmPackageDir)
+        }
         val packageJsonFile = npmPackageDir.get().file("package.json").asFile
         packageJsonFile.writeText("""
             {
@@ -95,7 +99,12 @@ tasks.register("npmPackage") {
                 "index.js",
                 "index.html",
                 "static/**"
-              ]
+              ],
+              "repository": {
+                "type": "git",
+                "url": "https://github.com/bittokazi/kotlin-kvision-spa-framework.git"
+              },
+              "homepage": "https://github.com/bittokazi/kotlin-kvision-spa-framework#readme",
             }
         """.trimIndent())
         println("Local NPM package prepared in: ${npmPackageDir.get().asFile.absolutePath}")
