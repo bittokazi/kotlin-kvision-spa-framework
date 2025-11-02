@@ -104,7 +104,7 @@ tasks.register("npmPackage") {
                 "type": "git",
                 "url": "https://github.com/bittokazi/kotlin-kvision-spa-framework.git"
               },
-              "homepage": "https://github.com/bittokazi/kotlin-kvision-spa-framework#readme",
+              "homepage": "https://github.com/bittokazi/kotlin-kvision-spa-framework#readme"
             }
         """.trimIndent())
         println("Local NPM package prepared in: ${npmPackageDir.get().asFile.absolutePath}")
