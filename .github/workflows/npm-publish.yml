@@ -55,11 +55,37 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           NAME=$(node -p "require('./package.json').name")
           
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "NAME=$NAME" >> $GITHUB_ENV
+          
           if npm view "$NAME@$VERSION" > /dev/null 2>&1; then
             echo "Version $VERSION already exists on NPM. Skipping publish."
+            echo "published=false" >> $GITHUB_OUTPUT
           else
             echo "Publishing $NAME@$VERSION to NPM..."
             npm publish
+            echo "published=true" >> $GITHUB_OUTPUT
           fi
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+      - name: Add NPM links to Summary
+        if: always()
+        run: |
+          PACKAGE_URL="https://www.npmjs.com/package/$NAME"
+          VERSION_URL="https://www.npmjs.com/package/$NAME/v/$VERSION"
+          
+          echo "## 📦 NPM Publication Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.publish_npm.outputs.published }}" = "true" ]; then
+            echo "✅ Successfully published \`$NAME@$VERSION\` to NPM." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Version \`$NAME@$VERSION\` already exists on NPM." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Package Links" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **NPM Package Page:** $PACKAGE_URL" >> $GITHUB_STEP_SUMMARY
+          echo "- **Direct Version Link:** $VERSION_URL" >> $GITHUB_STEP_SUMMARY
