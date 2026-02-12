@@ -47,3 +47,29 @@ jobs:
           CENTRAL_PUBLISHER_PASSWORD: ${{ secrets.CENTRAL_PUBLISHER_PASSWORD }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
         run: ./gradlew clean publishJsPublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --stacktrace
+
+      - name: Add Maven Links to Summary
+        if: always()
+        run: |
+          GROUP_ID=com.bittokazi.sonartype
+          ARTIFACT_ID=kotlinKvisionSpaFramework-js
+          
+          MAVEN_CENTRAL_URL="https://repo1.maven.org/maven2/${GROUP_ID//./\/}/$ARTIFACT_ID/$VERSION/"
+          MVN_REPOSITORY_URL="https://mvnrepository.com/artifact/$GROUP_ID/$ARTIFACT_ID/$VERSION"
+          SONATYPE_CENTRAL_URL="https://central.sonatype.com/artifact/$GROUP_ID/$ARTIFACT_ID/$VERSION"
+          
+          echo "## 📦 Maven Publication Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.check_version.outputs.exists }}" = "true" ]; then
+            echo "⚠️ Version \`$VERSION\` already existed in Maven Central." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Successfully published version \`$VERSION\`." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Artifact Links" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Maven Central (Direct Repo):** $MAVEN_CENTRAL_URL" >> $GITHUB_STEP_SUMMARY
+          echo "- **Sonatype Central Portal:** $SONATYPE_CENTRAL_URL" >> $GITHUB_STEP_SUMMARY
+          echo "- **MVNRepository:** $MVN_REPOSITORY_URL" >> $GITHUB_STEP_SUMMARY
