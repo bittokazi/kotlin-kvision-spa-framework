@@ -44,7 +44,10 @@ fun Container.dashboardMenuBar() {
                                     setAttribute("data-feather", it.icon)
                                 })
                                 add(span(className = "align-middle", content = it.title))
-                                setAttribute("data-bs-target", "#${it.title}")
+                                setAttribute(
+                                    "data-bs-target",
+                                    "#${it.title?.replace(" ", "-")}"
+                                )
                                 setAttribute("data-bs-toggle", "collapse")
                             }
                             ul(className = "sidebar-dropdown list-unstyled collapse") {
