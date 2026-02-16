@@ -51,7 +51,7 @@ fun Container.dashboardMenuBar() {
                                 setAttribute("data-bs-toggle", "collapse")
                             }
                             ul(className = "sidebar-dropdown list-unstyled collapse") {
-                                id = it.title
+                                id = it.title?.replace(" ", "-")
                                 setAttribute("data-bs-parent", "#sidebar")
 
                                 it.subMenuItems.listIterator().forEach { sub ->
