@@ -75,6 +75,7 @@ class RestService {
                                 )
                             )
                         )
+                        reject(throwable)
                     } else if (throwable.code.toInt() == 422) {
                         sweetAlert.fire(
                             Json.encodeToDynamic(
@@ -85,6 +86,7 @@ class RestService {
                                 )
                             )
                         )
+                        reject(throwable)
                     } else if (throwable.code.toInt() >= 500) {
                         sweetAlert.fire(
                             Json.encodeToDynamic(
@@ -95,6 +97,7 @@ class RestService {
                                 )
                             )
                         )
+                        reject(throwable)
                     } else if (throwable.code.toInt() >= 400) {
                         sweetAlert.fire(
                             Json.encodeToDynamic(
@@ -105,6 +108,7 @@ class RestService {
                                 )
                             )
                         )
+                        reject(throwable)
                     } else {
                         reject(throwable)
                     }
