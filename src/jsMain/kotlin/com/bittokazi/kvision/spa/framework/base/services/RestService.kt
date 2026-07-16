@@ -75,6 +75,18 @@ class RestService {
                                 )
                             )
                         )
+                        reject(throwable)
+                    } else if (throwable.code.toInt() == 403) {
+                        sweetAlert.fire(
+                            Json.encodeToDynamic(
+                                mapOf(
+                                    "title" to "Error",
+                                    "text" to "Unauthorized access [403]",
+                                    "icon" to "error"
+                                )
+                            )
+                        )
+                        reject(throwable)
                     } else if (throwable.code.toInt() == 422) {
                         sweetAlert.fire(
                             Json.encodeToDynamic(
@@ -85,6 +97,7 @@ class RestService {
                                 )
                             )
                         )
+                        reject(throwable)
                     } else if (throwable.code.toInt() >= 500) {
                         sweetAlert.fire(
                             Json.encodeToDynamic(
@@ -95,6 +108,7 @@ class RestService {
                                 )
                             )
                         )
+                        reject(throwable)
                     } else if (throwable.code.toInt() >= 400) {
                         sweetAlert.fire(
                             Json.encodeToDynamic(
@@ -105,6 +119,7 @@ class RestService {
                                 )
                             )
                         )
+                        reject(throwable)
                     } else {
                         reject(throwable)
                     }
