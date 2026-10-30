@@ -12,7 +12,7 @@ class SpaAuthService {
 
     var spaUser: SpaUser? = null
     val authObservableValue: ObservableValue<SpaUser?> = ObservableValue(null)
-    var block: ((spaUser: SpaUser)-> Unit)? = null
+    var block: (()-> Unit)? = null
 
     fun logout(
         oauth2LoginPage: Boolean = false,
@@ -26,13 +26,13 @@ class SpaAuthService {
         SpaApplication.applicationConfiguration.logoutActionProvider.logout(oauth2LoginPage, fullLogout)
     }
 
-    fun authenticated(_block: (spaUser: SpaUser)-> Unit) {
+    fun authenticated(_block: ()-> Unit) {
         SpaAppEngine.dashboardContentContainerTypeObserver.setState(ContentContainerType.CARD)
-        block = { _block(spaUser!!) }
+        block = _block
     }
 
     fun open() {
-        block?.invoke(spaUser!!) ?: run {
+        block?.invoke() ?: run {
             SpaAppEngine.routing.navigate(APP_LOGIN_ROUTE)
         }
         block = {}
