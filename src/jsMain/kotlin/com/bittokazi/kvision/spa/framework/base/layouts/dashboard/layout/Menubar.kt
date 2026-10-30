@@ -21,8 +21,11 @@ fun Container.dashboardMenuBar() {
         menuSections.listIterator().forEach { menuSection ->
             li(className = "sidebar-header", content = menuSection.title)
 
-            menuSection.menuItems.listIterator().forEach {
-                when (it.subMenuItems.isEmpty()) {
+            menuSection.menuItems
+                .filter { !it.accessCheckOnly }
+                .listIterator()
+                .forEach { it ->
+                    when (it.subMenuItems.isEmpty()) {
                     true -> {
                         items[it.link?: run { "" }] = Li(className = "sidebar-item") {
                             link("", it.link, className = "sidebar-link", dataNavigo = !it.external) {
@@ -54,17 +57,20 @@ fun Container.dashboardMenuBar() {
                                 id = it.title?.replace(" ", "-")
                                 setAttribute("data-bs-parent", "#sidebar")
 
-                                it.subMenuItems.listIterator().forEach { sub ->
-                                    items[sub.link?: run { "" }] = Li(className = "sidebar-item") {
-                                        link("", sub.link, className = "sidebar-link", dataNavigo = true) {
-                                            if(it.external) {
-                                                target = "_blank"
+                                it.subMenuItems
+                                    .filter { item -> !item.accessCheckOnly }
+                                    .listIterator()
+                                    .forEach { sub ->
+                                        items[sub.link?: run { "" }] = Li(className = "sidebar-item") {
+                                            link("", sub.link, className = "sidebar-link", dataNavigo = true) {
+                                                if(it.external) {
+                                                    target = "_blank"
+                                                }
+                                                add(span(className = "align-middle", content = sub.title))
                                             }
-                                            add(span(className = "align-middle", content = sub.title))
                                         }
+                                        add(items[sub.link]!!)
                                     }
-                                    add(items[sub.link]!!)
-                                }
                             }
                         }
 
@@ -74,7 +80,7 @@ fun Container.dashboardMenuBar() {
                         add(parent)
                     }
                 }
-            }
+                }
         }
     }
 
