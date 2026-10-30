@@ -20,4 +20,14 @@ data class MenuItem (
 
 interface MenuProvider {
     fun getMenu(spaRole: SpaRole): List<MenuSection>
+
+    fun hasAccessToPage(spaRoles: List<SpaRole>, route: String): Boolean =
+        spaRoles.any { role ->
+            getMenu(role).any { section ->
+                section.link == route || section.menuItems.any { it.containsRoute(route) }
+            }
+        }
 }
+
+private fun MenuItem.containsRoute(route: String): Boolean =
+    link == route || subMenuItems.any { it.containsRoute(route) }
